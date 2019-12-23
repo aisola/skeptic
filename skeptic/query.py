@@ -4,6 +4,38 @@ from typing import Any, List
 
 
 @dataclass
+class On:
+    left: str
+    op: str
+    right: str
+    cat: str = ' AND '
+
+
+@dataclass
+class Join:
+    _kind: str
+    _table: str
+    _ons: List[On] = field(default_factory=list)
+
+    def on(self, left, op, right):
+        self._ons.append(On(
+            left=left,
+            op=op,
+            right=right,
+        ))
+        return self
+
+    def or_on(self, left, op, right):
+        self._ons.append(On(
+            left=left,
+            op=op,
+            right=right,
+            cat=' OR '
+        ))
+        return self
+
+
+@dataclass
 class Where:
     col: str
     op: str
@@ -40,6 +72,7 @@ class Query:
     _stmt: str
     _table: str
     _columns: List[str] = field(default_factory=list)
+    _joins: List[Join] = field(default_factory=list)
     _wheres: List[Where] = field(default_factory=list)
     _sets: List[Set] = field(default_factory=list)
     _group_by: List[str] = None
@@ -69,6 +102,44 @@ class Query:
     def columns(self, *cols):
         self._columns = list(cols)
         return self
+
+    def inner_join(self, table):
+        join = Join(
+            _kind='inner',
+            _table=table,
+        )
+
+        self._joins.append(join)
+        return join
+
+    join = inner_join
+
+    def left_outer_join(self, table):
+        join = Join(
+            _kind='left_outer',
+            _table=table,
+        )
+
+        self._joins.append(join)
+        return join
+
+    def right_outer_join(self, table):
+        join = Join(
+            _kind='right_outer',
+            _table=table,
+        )
+
+        self._joins.append(join)
+        return join
+
+    def full_outer_join(self, table):
+        join = Join(
+            _kind='full_outer',
+            _table=table,
+        )
+
+        self._joins.append(join)
+        return join
 
     def values(self, *vals):
         if self._stmt == 'insert':
