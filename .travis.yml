@@ -9,4 +9,4 @@ before_install:
 
 install: sudo /etc/poetry/bin/poetry install
 
-script: /etc/poetry/bin/poetry run py.test
+script: sudo /etc/poetry/bin/poetry run py.test
