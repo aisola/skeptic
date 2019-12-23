@@ -7,6 +7,6 @@ python:
 before_install:
   - sudo curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/etc/poetry sudo python
 
-install: /etc/poetry/bin/poetry install
+install: sudo /etc/poetry/bin/poetry install
 
 script: /etc/poetry/bin/poetry run py.test
