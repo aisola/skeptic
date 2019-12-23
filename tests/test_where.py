@@ -108,6 +108,31 @@ where_tests = [
         Query.update('test').where_in_query('name', Query.select('people')),
         Query(_stmt='update', _table='test', _wheres=[Where(col='name', op='IN', query=Query(_stmt='select', _table='people'))])
     ),
+    (
+        'or_where_eq',
+        Query.delete('test').or_where('email', 'me@example.com'),
+        Query(_stmt='delete', _table='test', _wheres=[Where(col="email", op="=", cat=' OR ')], _args=['me@example.com'])
+    ),
+    (
+        'or_where_eq_raw',
+        Query.delete('test').or_where_raw('email', 'me@example.com'),
+        Query(_stmt='delete', _table='test', _wheres=[Where(col="email", op="=", cat=' OR ', val='me@example.com')])
+    ),
+    (
+        'or_where_in',
+        Query.delete('test').or_where('month', 'IN', ['jan', 'feb']),
+        Query(_stmt='delete', _table='test', _wheres=[Where(col='month', op='IN', cat=' OR ')], _args=['jan', 'feb'])
+    ),
+    (
+        'or_where_in_raw',
+        Query.delete('test').or_where_raw('month', 'IN', ['jan', 'feb']),
+        Query(_stmt='delete', _table='test', _wheres=[Where(col='month', op='IN', cat=' OR ', val='(jan, feb)')])
+    ),
+    (
+        'or_where_in_query',
+        Query.update('test').or_where_in_query('name', Query.select('people')),
+        Query(_stmt='update', _table='test', _wheres=[Where(col='name', op='IN', cat=' OR ', query=Query(_stmt='select', _table='people'))])
+    ),
 ]
 
 
