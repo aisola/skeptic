@@ -104,127 +104,37 @@ class Query:
         self._order.cols = list(args)
         return self
 
-    def where_eq_raw(self, col, val):
+    def where_raw(self, col, *args):
+        if len(args) == 1:
+            op = '='
+            val = args[0]
+        else:
+            op = args[0]
+            val = args[1]
+
+        if type(val) == list:
+            val = '(' + ', '.join(val) + ')'
+
         self._wheres.append(Where(
             col=col,
-            op='=',
+            op=op,
             val=val,
         ))
         return self
 
-    def where_eq(self, col, val):
-        q = self.where_eq_raw(col, None)
-        q._args.append(val)
-        return q
+    def where(self, col, *args):
+        if len(args) == 1:
+            self.where_raw(col, None)
+            val = args[0]
+        else:
+            self.where_raw(col, args[0], None)
+            val = args[1]
 
-    def where_ne_raw(self, col, val):
-        self._wheres.append(Where(
-            col=col,
-            op='!=',
-            val=val,
-        ))
-        return self
-
-    def where_ne(self, col, val):
-        q = self.where_ne_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def where_gt_raw(self, col, val):
-        self._wheres.append(Where(
-            col=col,
-            op='>',
-            val=val,
-        ))
-        return self
-
-    def where_gt(self, col, val):
-        q = self.where_gt_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def where_gte_raw(self, col, val):
-        self._wheres.append(Where(
-            col=col,
-            op='>=',
-            val=val,
-        ))
-        return self
-
-    def where_gte(self, col, val):
-        q = self.where_gte_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def where_lt_raw(self, col, val):
-        self._wheres.append(Where(
-            col=col,
-            op='<',
-            val=val,
-        ))
-        return self
-
-    def where_lt(self, col, val):
-        q = self.where_lt_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def where_lte_raw(self, col, val):
-        self._wheres.append(Where(
-            col=col,
-            op='<=',
-            val=val,
-        ))
-        return self
-
-    def where_lte(self, col, val):
-        q = self.where_lte_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def where_in_raw(self, col, *vals):
-        if len(vals) == 0:
-            return self
-
-        self._wheres.append(Where(
-            col=col,
-            op='IN',
-            val='(' + ', '.join(vals) + ')',
-        ))
-
-        return self
-
-    def where_in(self, col, *args):
-        if len(args) == 0:
-            return self
-
-        self._wheres.append(Where(col=col, op='IN', val=None))
-
-        for arg in args:
-            self._args.append(arg)
-
-        return self
-
-    def where_not_in_raw(self, col, *vals):
-        if len(vals) == 0:
-            return self
-
-        self._wheres.append(Where(
-            col=col,
-            op='NOT IN',
-            val='(' + ', '.join(vals) + ')',
-        ))
-
-        return self
-
-    def where_not_in(self, col, *args):
-        if len(args) == 0:
-            return self
-
-        self._wheres.append(Where(col=col, op='NOT IN', val=None))
-
-        for arg in args:
-            self._args.append(arg)
+        if type(val) == list:
+            for arg in val:
+                self._args.append(arg)
+        else:
+            self._args.append(val)
 
         return self
 
@@ -239,146 +149,38 @@ class Query:
 
         return self
 
-    def where_like(self, col, like):
-        self._wheres.append(Where(col=col, op='LIKE', val=None))
-        self._args.append(like)
-        return self
+    def having_raw(self, col, *args):
+        if len(args) == 1:
+            op = '='
+            val = args[0]
+        else:
+            op = args[0]
+            val = args[1]
 
-    def where_is_not_null(self, col):
-        self._wheres.append(Where(col=col, op='IS NOT', val='NULL'))
-        return self
+        if type(val) == list:
+            val = '(' + ', '.join(val) + ')'
 
-    def having_eq_raw(self, col, val):
         self._havings.append(Having(
             col=col,
-            op='=',
+            op=op,
             val=val,
         ))
         return self
 
-    def having_eq(self, col, val):
-        q = self.having_eq_raw(col, None)
-        q._args.append(val)
-        return q
+    def having(self, col, *args):
+        if len(args) == 1:
+            self.having_raw(col, None)
+            val = args[0]
+        else:
+            self.having_raw(col, args[0], None)
+            val = args[1]
 
-    def having_ne_raw(self, col, val):
-        self._havings.append(Having(
-            col=col,
-            op='!=',
-            val=val,
-        ))
-        return self
+        if type(val) == list:
+            for arg in val:
+                self._args.append(arg)
+        else:
+            self._args.append(val)
 
-    def having_ne(self, col, val):
-        q = self.having_ne_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def having_gt_raw(self, col, val):
-        self._havings.append(Having(
-            col=col,
-            op='>',
-            val=val,
-        ))
-        return self
-
-    def having_gt(self, col, val):
-        q = self.having_gt_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def having_gte_raw(self, col, val):
-        self._havings.append(Having(
-            col=col,
-            op='>=',
-            val=val,
-        ))
-        return self
-
-    def having_gte(self, col, val):
-        q = self.having_gte_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def having_lt_raw(self, col, val):
-        self._havings.append(Having(
-            col=col,
-            op='<',
-            val=val,
-        ))
-        return self
-
-    def having_lt(self, col, val):
-        q = self.having_lt_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def having_lte_raw(self, col, val):
-        self._havings.append(Having(
-            col=col,
-            op='<=',
-            val=val,
-        ))
-        return self
-
-    def having_lte(self, col, val):
-        q = self.having_lte_raw(col, None)
-        q._args.append(val)
-        return q
-
-    def having_in_raw(self, col, *vals):
-        if len(vals) == 0:
-            return self
-
-        self._havings.append(Having(
-            col=col,
-            op='IN',
-            val='(' + ', '.join(vals) + ')',
-        ))
-
-        return self
-
-    def having_in(self, col, *args):
-        if len(args) == 0:
-            return self
-
-        self._havings.append(Having(col=col, op='IN', val=None))
-
-        for arg in args:
-            self._args.append(arg)
-
-        return self
-
-    def having_not_in_raw(self, col, *vals):
-        if len(vals) == 0:
-            return self
-
-        self._havings.append(Having(
-            col=col,
-            op='NOT IN',
-            val='(' + ', '.join(vals) + ')',
-        ))
-
-        return self
-
-    def having_not_in(self, col, *args):
-        if len(args) == 0:
-            return self
-
-        self._havings.append(Having(col=col, op='NOT IN', val=None))
-
-        for arg in args:
-            self._args.append(arg)
-
-        return self
-
-    def having_like(self, col, like):
-        self._havings.append(Having(col=col, op='LIKE', val=None))
-        self._args.append(like)
-        return self
-
-    def having_is_not_null(self, col):
-        self._havings.append(Having(col=col, op='IS NOT', val='NULL'))
         return self
 
     def set_raw(self, col, val):
