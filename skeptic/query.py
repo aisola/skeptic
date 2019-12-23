@@ -8,7 +8,7 @@ class Where:
     col: str
     op: str
     val: Any = None
-    cat: str = " AND "
+    cat: str = ' AND '
     query: Any = None  # Should be type query, just dont know how to do that and too lazy to look it up.?
 
 
@@ -17,7 +17,7 @@ class Having:
     col: str
     op: str
     val: Any = None
-    cat: str = " AND "
+    cat: str = ' AND '
 
 
 @dataclass
@@ -122,6 +122,25 @@ class Query:
         ))
         return self
 
+    def or_where_raw(self, col, *args):
+        if len(args) == 1:
+            op = '='
+            val = args[0]
+        else:
+            op = args[0]
+            val = args[1]
+
+        if type(val) == list:
+            val = '(' + ', '.join(val) + ')'
+
+        self._wheres.append(Where(
+            col=col,
+            op=op,
+            val=val,
+            cat=' OR ',
+        ))
+        return self
+
     def where(self, col, *args):
         if len(args) == 1:
             self.where_raw(col, None)
@@ -138,11 +157,38 @@ class Query:
 
         return self
 
+    def or_where(self, col, *args):
+        if len(args) == 1:
+            self.or_where_raw(col, None)
+            val = args[0]
+        else:
+            self.or_where_raw(col, args[0], None)
+            val = args[1]
+
+        if type(val) == list:
+            for arg in val:
+                self._args.append(arg)
+        else:
+            self._args.append(val)
+
+        return self
+
     def where_in_query(self, col, query):
         if query._is_zero():
             return self
 
-        self._wheres.append(Where(col=col, op='IN', val=None, query=query))
+        self._wheres.append(Where(col=col, op='IN', query=query))
+
+        for arg in query._args:
+            self._args.append(arg)
+
+        return self
+
+    def or_where_in_query(self, col, query):
+        if query._is_zero():
+            return self
+
+        self._wheres.append(Where(col=col, op='IN', cat=' OR ', query=query))
 
         for arg in query._args:
             self._args.append(arg)
